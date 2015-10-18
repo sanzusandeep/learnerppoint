@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="learnerpoint" basedir="." default="usage">
+    <property file="build.properties"/>
+
+    <property name="src.dir" value="src"/>
+    <property name="web.dir" value="war"/>
+    <property name="build.dir" value="${web.dir}/WEB-INF/classes"/>
+    <property name="name" value="learnerpoint"/>
+
+
+    <path id="master-classpath">
+        <fileset dir="${web.dir}/WEB-INF/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <fileset dir="dev-lib">
+            <include name="servlet*.jar"/>
+        </fileset>
+        <pathelement path="${build.dir}"/>
+    </path>
+
+    <target name="usage">
+        <echo message=""/>
+        <echo message="${name} build file"/>
+        <echo message="-----------------------------------"/>
+        <echo message=""/>
+        <echo message="Available targets are:"/>
+        <echo message=""/>
+        <echo message="build     --> Build the application"/>
+        <echo message="deploy    --> Deploy application as directory"/>
+        <echo message="deploywar --> Deploy application as a WAR file"/>
+        <echo message=""/>
+    </target>
+
+    <target name="build" description="Compile main source tree java files">
+        <mkdir dir="${build.dir}"/>
+        <javac destdir="${build.dir}" source="1.5" target="1.5" debug="true"
+               deprecation="false" optimize="false" failonerror="true" includeantruntime="false">
+            <src path="${src.dir}"/>
+            <classpath refid="master-classpath"/>
+        </javac>
+    </target>
+
+    <target name="deploy" depends="build" description="Deploy application">
+        <copy todir="${deploy.path}/${name}" >
+            <fileset dir="${web.dir}">
+                <include name="**/*.*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="dev-deploywar" depends="build" description="Deploy application as a WAR file">
+    	
+    	<delete file="${name}.war" />
+    		
+    	<delete file="${build.dir}/jdbc.properties" />
+    	<delete file="${build.dir}/log4j.properties" />
+    	<delete file="${build.dir}/alerts.properties" />
+        <copy todir="${basedir}/war/WEB-INF/classes/" >
+            <fileset dir="${basedir}/config">
+                <include name="jdbc.properties"/>
+            	<include name="log4j.properties"/>
+            	<include name="alerts.properties"/>
+            </fileset>
+        </copy>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.driver}" value="${dev.db.driver}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.url}" value="${dev.db.url}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.user}" value="${dev.db.user}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.password}" value="${dev.db.password}"></replace>
+    	<replace file="${build.dir}/log4j.properties" token="${logfile.path}" value="${dev.logfile.path}"></replace>
+
+    	<war destfile="${name}.war"
+             webxml="${web.dir}/WEB-INF/web.xml">
+            <fileset dir="${web.dir}">
+            	<include name="**/*.*"/>
+            </fileset>
+        </war>
+        <copy todir="${dev.deploy.path}" >
+            <fileset dir=".">
+                <include name="*.war"/>
+            </fileset>
+        </copy>
+    </target>
+ 
+    <target name="staging-deploywar" depends="build" description="Deploy application as a WAR file">
+    	
+    	<delete file="${name}-staging.war" />
+    		
+    	<delete file="${build.dir}/jdbc.properties" />
+    	<delete file="${build.dir}/log4j.properties" />
+    	<delete file="${build.dir}/alerts.properties" />
+        <copy todir="${basedir}/war/WEB-INF/classes/" >
+            <fileset dir="${basedir}/config">
+                <include name="jdbc.properties"/>
+            	<include name="log4j.properties"/>
+            	<include name="alerts.properties"/>
+            </fileset>
+        </copy>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.driver}" value="${staging.db.driver}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.url}" value="${staging.db.url}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.user}" value="${staging.db.user}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.password}" value="${staging.db.password}"></replace>
+    	<replace file="${build.dir}/log4j.properties" token="${logfile.path}" value="${staging.logfile.path}"></replace>
+
+    	<war destfile="${name}-staging.war"
+             webxml="${web.dir}/WEB-INF/web.xml">
+            <fileset dir="${web.dir}">
+            	<include name="**/*.*"/>
+            	<exclude name="**/subjects/**"/>
+            </fileset>
+        </war>
+    </target>
+    	
+    <target name="prod-deploywar" depends="build" description="Deploy application as a WAR file">
+    	
+    	<delete file="${name}-prod.war" />
+    		
+    	<delete file="${build.dir}/jdbc.properties" />
+    	<delete file="${build.dir}/log4j.properties" />
+    	<delete file="${build.dir}/alerts.properties" />
+        <copy todir="${basedir}/war/WEB-INF/classes/" >
+            <fileset dir="${basedir}/config">
+                <include name="jdbc.properties"/>
+            	<include name="log4j.properties"/>
+            	<include name="alerts.properties"/>
+            </fileset>
+        </copy>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.driver}" value="${prod.db.driver}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.url}" value="${prod.db.url}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.user}" value="${prod.db.user}"></replace>
+    	<replace file="${build.dir}/jdbc.properties" token="${db.password}" value="${prod.db.password}"></replace>
+    	<replace file="${build.dir}/log4j.properties" token="${logfile.path}" value="${prod.logfile.path}"></replace>
+
+    	<war destfile="${name}-prod.war"
+             webxml="${web.dir}/WEB-INF/web.xml">
+            <fileset dir="${web.dir}">
+            	<include name="**/*.*"/>
+            </fileset>
+        </war>
+    </target>
+
+<!-- ============================================================== -->
+<!-- Junit Test tasks -->
+<!-- ============================================================== -->
+	
+	<property name="test.dir" value="test"/>
+	<path id="test-classpath">
+        <fileset dir="${web.dir}/WEB-INF/lib">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="${build.dir}"/>
+        <pathelement path="${test.dir}"/>
+        <pathelement path="${web.dir}/WEB-INF/classes"/>
+    </path>
+
+        
+    <target name="buildtests" description="Compile test tree java files">
+        <mkdir dir="${build.dir}"/>
+        <javac destdir="${build.dir}" source="1.5" target="1.5" debug="true"
+            deprecation="false" optimize="false" failonerror="true">
+            <src path="${test.dir}"/>
+            <classpath refid="master-classpath"/>
+        </javac>
+    </target>
+    
+    <target name="tests" depends="build, buildtests" description="Run tests">
+        <junit printsummary="on"
+            fork="false"
+            haltonfailure="false"
+            failureproperty="tests.failed"
+            showoutput="true">
+            <!-- classpath refid="master-classpath"/-->
+            <classpath refid="test-classpath"/>
+            <formatter type="brief" usefile="false"/>
+            
+            <batchtest>
+                <fileset dir="${build.dir}">
+                    <include name="**/*Tests.*"/>
+                    <exclude name="**/Jdbc*Tests.*"/>                    
+                </fileset>
+            </batchtest>
+            
+        </junit>
+        
+        <fail if="tests.failed">
+            tests.failed=${tests.failed}
+            ***********************************************************
+            ***********************************************************
+            ****  One or more tests failed!  Check the output ...  ****
+            ***********************************************************
+            ***********************************************************
+        </fail>
+    </target>
+    
+	<target name="dbTests" depends="build, buildtests,dropTables,createTables,loadData" 
+            description="Run db tests">
+        <junit printsummary="on"
+            fork="false"
+            haltonfailure="false"
+            failureproperty="tests.failed"
+            showoutput="true">
+            <classpath refid="test-classpath"/>
+            <formatter type="brief" usefile="false"/>
+            
+            <batchtest>
+                <fileset dir="${build.dir}">
+                    <include name="**/Jdbc*Tests.*"/>
+                </fileset>
+            </batchtest>
+            
+        </junit>
+        
+        <fail if="tests.failed">
+            tests.failed=${tests.failed}
+            ***********************************************************
+            ***********************************************************
+            ****  One or more tests failed!  Check the output ...  ****
+            ***********************************************************
+            ***********************************************************
+        </fail>
+    </target>
+
+<!-- ============================================================== -->
+<!-- DataBase related tasks -->
+<!-- ============================================================== -->
+    
+	<target name="createTables">
+        <echo message="CREATE TABLES USING: ${db.driver} ${db.url}"/>
+        <sql driver="${db.driver}"
+             url="${db.url}"
+             userid="${db.user}"
+             password="${db.pw}"
+             onerror="continue"
+             src="db/create_rc.sql">  
+            <classpath refid="master-classpath"/>
+        </sql> 
+    </target>
+
+    <target name="dropTables">
+        <echo message="DROP TABLES USING: ${db.driver} ${db.url}"/>
+        <sql driver="${db.driver}"
+             url="${db.url}"
+             userid="${db.user}"
+             password="${db.pw}"
+             onerror="continue">  
+            <classpath refid="master-classpath"/>
+
+        DROP TABLE ADDRESS;
+		DROP TABLE USERS;
+        DROP TABLE CLIENT;
+        
+        </sql> 
+    </target>
+
+    <target name="loadData">
+        <echo message="LOAD DATA USING: ${db.driver} ${db.url}"/>
+        <sql driver="${db.driver}"
+             url="${db.url}"
+             userid="${db.user}"
+             password="${db.pw}"
+             onerror="continue"
+             src="db/load_data.sql">  
+            <classpath refid="master-classpath"/>
+        </sql> 
+    </target>
+
+    <target name="printData">
+        <echo message="PRINT DATA USING: ${db.driver} ${db.url}"/>
+        <sql driver="${db.driver}"
+             url="${db.url}"
+             userid="${db.user}"
+             password="${db.pw}"
+             onerror="continue"
+             print="true">  
+            <classpath refid="master-classpath"/>
+
+        SELECT * FROM client;
+        SELECT * FROM address;
+        SELECT * FROM USERS;
+
+        </sql> 
+    </target>
+
+    <target name="clearData">
+        <echo message="CLEAR DATA USING: ${db.driver} ${db.url}"/>
+        <sql driver="${db.driver}"
+             url="${db.url}"
+             userid="${db.user}"
+             password="${db.pw}"
+             onerror="continue">  
+            <classpath refid="master-classpath"/>
+
+        DELETE FROM USERS;
+        DELETE FROM address;
+        DELETE FROM client;
+        	
+        </sql> 
+    </target>
+
+    <target name="shutdownDb">
+        <echo message="SHUT DOWN DATABASE USING: ${db.driver} ${db.url}"/>
+        <sql driver="${db.driver}"
+             url="${db.url}"
+             userid="${db.user}"
+             password="${db.pw}"
+             onerror="continue">  
+            <classpath refid="master-classpath"/>
+
+        SHUTDOWN;
+
+        </sql> 
+    </target>
+    
+</project>

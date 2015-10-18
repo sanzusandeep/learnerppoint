@@ -1,0 +1,41 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+	<http auto-config="false" use-expressions="true" entry-point-ref="rcEntryPoint">
+		<intercept-url pattern="/static/css/**" filters="none" />
+		<intercept-url pattern="/static/js/**" filters="none" />
+		<intercept-url pattern="/static/images/**" filters="none" />
+		<intercept-url pattern="/index.jsp" access="permitAll" />
+		<intercept-url pattern="/learnerpoint" access="permitAll" />
+		
+
+		<!-- <intercept-url pattern="/logout" access="permitAll" />
+		<remember-me key="myAppKey" token-validity-seconds="600" /> -->   
+
+		<form-login />
+		<intercept-url pattern="/**" access="isAuthenticated()" />
+		<session-management session-fixation-protection="newSession" />
+	</http>
+	
+	<beans:bean id="rcEntryPoint"
+		class="com.sl.web.security.RCAuthenticationEntryPoint" />
+
+	<beans:bean id="rcFilter" class="com.sl.web.security.RCAuthenticationFilter">
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+	</beans:bean>
+
+	<authentication-manager alias="authenticationManager">
+	    	<!--  <authentication-provider ref="rcAuthenticationProvider" />-->
+		    <authentication-provider>
+		    	<jdbc-user-service data-source-ref="dataSource" users-by-username-query="select USER_NAME as username, PASSWORD, true from USERS where USER_NAME = ? "/>
+		    </authentication-provider>
+	</authentication-manager>
+
+	<beans:bean id="rcAuthenticationProvider"
+		class="com.sl.web.security.RCAuthenticationProvider">
+	</beans:bean>
+	
+
+	</beans:beans> 

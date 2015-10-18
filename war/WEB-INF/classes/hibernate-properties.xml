@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+
+	<!-- <bean id="mappingResources" class="java.util.ArrayList">
+		<constructor-arg>
+			<list>
+				<value>mappings/Login.hbm.xml</value>
+				<value>mappings/Agenda.hbm.xml</value>
+				<value>mappings/Minutes.hbm.xml</value>
+				<value>mappings/AssociatedFiles.hbm.xml</value>
+				<value>mappings/SubjectDiscussion.hbm.xml</value>
+			</list>
+		</constructor-arg>
+	</bean> -->
+
+</beans>
